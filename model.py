@@ -1,102 +1,6 @@
 #model_marketplace.config
-# {
-#   "token_length": "4018",
-#   "accuracy": "70",
-#   "precision": "fp16",
-#   "sampling_frequency:": "44100",
-#   "mono": true,
-#   "fps": "74",
-#   "resolution": "480",
-#   "image_width": "1080",
-#   "image_height": "1920",
-#   "framework": "transformers",
-#   "dataset_format": "llm",
-#   "dataset_sample": "[id on s3]",
-#   "weights": [
-#     {
-#       "name": "deepseek-ai/DeepSeek-R1",
-#       "value": "deepseek-ai/DeepSeek-R1",
-#       "size": 260,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Zero",
-#       "value": "deepseek-ai/DeepSeek-R1-Zero",
-#       "size": 260,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-#       "size": 260,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-#       "size": 40,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-#       "size": 80,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-#       "size": 80,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-#       "size": 80,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     },
-#      {
-#       "name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-#       "value": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-#       "size": 80,
-#       "paramasters": "12B",
-#       "tflops": 12,
-#       "vram": 12,
-#       "nodes": 1
-#     }
-#   ],
-#   "cuda": "11.4",
-#   "task": [
-#     "chatbot",
-#     "chat",
-#     "text-generation",
-#     "text-classification",
-#     "text-summarization",
-#     "text-ner",
-#     "question-answering"
-#   ]
-# }
+# {"token_length": "4018", "accuracy": "70", "precision": "fp16", "sampling_frequency:": "44100", "mono": true, "fps": "74", "resolution": "480", "image_width": "1080", "image_height": "1920", "framework": "transformers", "dataset_format": "llm", "dataset_sample": "[id on s3]", "weights": [{"name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", "value": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", "size": 260, "paramasters": "12B", "tflops": 12, "vram": 12, "nodes": 1}], "cuda": "11.4", "task": ["chatbot", "chat", "text-generation", "text-classification", "text-summarization", "text-ner", "question-answering"]}
+
 # import math
 # import pathlib
 # import random
@@ -120,7 +24,8 @@ HfFolder.save_token(hf_token)
 # wandb.login('allow',"69b9681e7dc41d211e8c93a3ba9a6fb8d781404a")
 # print("Login successful")
 from huggingface_hub import login 
-login(token = hf_token)
+hf_access_token = "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"
+login(token = hf_access_token)
 CUDA_VISIBLE_DEVICES=[]
 for i in range(torch.cuda.device_count()):
     CUDA_VISIBLE_DEVICES.append(i)
@@ -177,15 +82,89 @@ HOST_NAME = os.environ.get('HOST_NAME',"https://dev-us-west-1.aixblock.io")
 TYPE_ENV = os.environ.get('TYPE_ENV',"DETECTION")
 import requests
 from function_ml import connect_project, download_dataset, upload_checkpoint
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("aixblock-mcp")
+# def download_dataset(data_zip_dir, project_id, dataset_id, token):
+#     # data_zip_path = os.path.join(data_zip_dir, "data.zip")
+#     url = f"{HOST_NAME}/api/dataset_model_marketplace/download/{dataset_id}?project_id={project_id}"
+#     print(url)
+#     payload = {}
+#     headers = {
+#         'accept': 'application/json',
+#         'Authorization': f'Token {token}'
+#     }
+
+#     response = requests.request("GET", url, headers=headers, data=payload)
+#     dataset_name = response.headers.get('X-Dataset-Name')
+#     if response.status_code == 200:
+#         with open(data_zip_dir, 'wb') as f:
+#             f.write(response.content)
+#         return dataset_name
+#     else:
+#         return None
+
+# def upload_checkpoint(checkpoint_model_dir, project_id, token, path_file, version, send_mail=False):
+#     import os
+#     url = f"{HOST_NAME}/api/checkpoint_model_marketplace/upload/"
+
+#     payload = {
+#         "type_checkpoint": "ml_checkpoint",
+#         "project_id": f'{project_id}',
+#         "is_training": send_mail,
+#         "full_path": path_file,
+#         "version": version
+#     }
+#     headers = {
+#         'accept': 'application/json',
+#         'Authorization': f'Token {token}'
+#     }
+
+#     checkpoint_name = None
+
+#     # response = requests.request("POST", url, headers=headers, data=payload) 
+#     with open(checkpoint_model_dir, 'rb') as file:
+#         files = {'file': file}
+#         response = requests.post(url, headers=headers, files=files, data=payload)
+#         checkpoint_name = response.headers.get('X-Checkpoint-Name')
+
+#     print("upload done")
+#     return checkpoint_name
 
 class MyModel(AIxBlockMLBase):
 
+    # def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> List[Dict]:
+    #     """ 
+    #     """
+    #     print(f'''\
+    #     Run prediction on {tasks}
+    #     Received context: {context}
+    #     Project ID: {self.project_id}
+    #     Label config: {self.label_config}
+    #     Parsed JSON Label config: {self.parsed_label_config}''')
+    #     return []
+
+    # def fit(self, event, data, **kwargs):
+    #     old_data = self.get('my_data')
+    #     old_model_version = self.get('model_version')
+    #     print(f'Old data: {old_data}')
+    #     print(f'Old model version: {old_model_version}')
+
+    #     # store new data to the cache
+    #     self.set('my_data', 'my_new_data_value')
+    #     self.set('model_version', 'my_new_model_version')
+    #     print(f'New data: {self.get("my_data")}')
+    #     print(f'New model version: {self.get("model_version")}')
+
+    #     print('fit() completed successfully.')
+    @mcp.tool()
     def action(self,  command,**kwargs):
         
         print(f"""
                 command: {command}
               """)
-        
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
         if command.lower() == "train":
                 import threading
                 import os
@@ -1871,6 +1850,7 @@ class MyModel(AIxBlockMLBase):
     #     gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=False,show_api=False)
    
     #     return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def model(self, **kwargs):
         
         import gradio as gr
@@ -2518,6 +2498,7 @@ class MyModel(AIxBlockMLBase):
         gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=True)
    
         return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def model_trial(self, project, **kwargs):
         import gradio as gr 
 
@@ -2741,6 +2722,7 @@ class MyModel(AIxBlockMLBase):
         gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=True)
    
         return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def download(self, project, **kwargs):
         from flask import send_from_directory,request
         file_path = request.args.get('path')
@@ -2754,3 +2736,19 @@ class MyModel(AIxBlockMLBase):
     #     else:
     #         print("file dont exist")
     #         return {"msg": "file dont exist"}
+    
+    @mcp.tool()
+    async def aixblock_tool() -> str:
+        return "This is AixBlock tool."
+    
+    @mcp.prompt("aixblock-promt")
+    async def aixblock_promt() -> str:
+        return """
+        AixBlock Tools Help:
+        1. aixblock_tool()
+        """
+    
+    @mcp.resource("aixblock://status")
+    def aixblock_resource() -> str:
+        """Get the AIxBlock service status"""
+        return "AIxBlock service is running!"
