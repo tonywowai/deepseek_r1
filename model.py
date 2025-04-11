@@ -82,7 +82,9 @@ HOST_NAME = os.environ.get('HOST_NAME',"https://dev-us-west-1.aixblock.io")
 TYPE_ENV = os.environ.get('TYPE_ENV',"DETECTION")
 import requests
 from function_ml import connect_project, download_dataset, upload_checkpoint
+from mcp.server.fastmcp import FastMCP
 
+mcp = FastMCP("aixblock-mcp")
 # def download_dataset(data_zip_dir, project_id, dataset_id, token):
 #     # data_zip_path = os.path.join(data_zip_dir, "data.zip")
 #     url = f"{HOST_NAME}/api/dataset_model_marketplace/download/{dataset_id}?project_id={project_id}"
@@ -155,13 +157,14 @@ class MyModel(AIxBlockMLBase):
     #     print(f'New model version: {self.get("model_version")}')
 
     #     print('fit() completed successfully.')
-
+    @mcp.tool()
     def action(self,  command,**kwargs):
         
         print(f"""
                 command: {command}
               """)
-        
+        if "kwargs" in kwargs:
+            kwargs = kwargs.get("kwargs")
         if command.lower() == "train":
                 import threading
                 import os
@@ -1847,6 +1850,7 @@ class MyModel(AIxBlockMLBase):
     #     gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=False,show_api=False)
    
     #     return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def model(self, **kwargs):
         
         import gradio as gr
@@ -2494,6 +2498,7 @@ class MyModel(AIxBlockMLBase):
         gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=True)
    
         return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def model_trial(self, project, **kwargs):
         import gradio as gr 
 
@@ -2717,6 +2722,7 @@ class MyModel(AIxBlockMLBase):
         gradio_app, local_url, share_url = demo.launch(share=True, quiet=True, prevent_thread_lock=True, server_name='0.0.0.0',show_error=True)
    
         return {"share_url": share_url, 'local_url': local_url}
+    @mcp.tool()
     def download(self, project, **kwargs):
         from flask import send_from_directory,request
         file_path = request.args.get('path')
@@ -2730,3 +2736,19 @@ class MyModel(AIxBlockMLBase):
     #     else:
     #         print("file dont exist")
     #         return {"msg": "file dont exist"}
+    
+    @mcp.tool()
+    async def aixblock_tool() -> str:
+        return "This is AixBlock tool."
+    
+    @mcp.prompt("aixblock-promt")
+    async def aixblock_promt() -> str:
+        return """
+        AixBlock Tools Help:
+        1. aixblock_tool()
+        """
+    
+    @mcp.resource("aixblock://status")
+    def aixblock_resource() -> str:
+        """Get the AIxBlock service status"""
+        return "AIxBlock service is running!"
