@@ -802,12 +802,12 @@ class MyModel(AIxBlockMLBase):
                 prompt = kwargs.get("prompt", None)
                 model_id = kwargs.get("model_id", "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
                 text = kwargs.get("text", None)
-                token_length = kwargs.get("token_lenght", 30)
-                task = kwargs.get("task", "")
+                token_length = kwargs.get("token_lenght", 256)
+                task = kwargs.get("task", "text-generation")
                 voice = kwargs.get("voice", "")
                 max_new_token = kwargs.get("max_new_token", 256)
                 temperature = kwargs.get("temperature", 0.9)
-                top_k = kwargs.get("top_k", 0.0)
+                top_k = kwargs.get("top_k", 1.2)
                 top_p = kwargs.get("top_p", 0.6)
                 world_size = kwargs.get("world_size", 1)
                 rank = kwargs.get("rank", 0)
@@ -1383,7 +1383,7 @@ class MyModel(AIxBlockMLBase):
                                 if not prompt or prompt == "":
                                     prompt = text
 
-                                result = _model(prompt, max_length=token_length)
+                                result = _model(prompt) #, max_length=token_length
                                 generated_text = result[0]['generated_text']
 
                             predictions.append({
@@ -1434,7 +1434,7 @@ class MyModel(AIxBlockMLBase):
                                 if not prompt or prompt == "":
                                     prompt = text
 
-                                result = _model(prompt, max_length=token_length)
+                                result = _model(prompt) #, max_length=token_length
                                 generated_text = result[0]['generated_text']
 
                             predictions.append({
